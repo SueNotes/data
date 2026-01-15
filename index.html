@@ -1,607 +1,291 @@
-
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>중학교 1학년 기술교과 성적 분석</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        h1 {
-            color: white;
-            text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-            animation: fadeInDown 0.8s ease;
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            animation: fadeInUp 0.8s ease;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .stat-card h2 {
-            color: #667eea;
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #333;
-            text-align: center;
-        }
-
-        .stat-label {
-            color: #666;
-            font-size: 0.9rem;
-            text-align: center;
-            margin-top: 5px;
-        }
-
-        .chart-container {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            animation: fadeIn 1s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        .chart-title {
-            color: #333;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        canvas {
-            max-height: 400px;
-        }
-
-        .table-container {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        td {
-            padding: 12px;
-            text-align: center;
-            border-bottom: 1px solid #eee;
-        }
-
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-
-        .class-1 {
-            color: #e74c3c;
-            font-weight: bold;
-        }
-
-        .class-2 {
-            color: #3498db;
-            font-weight: bold;
-        }
-
-        .class-3 {
-            color: #2ecc71;
-            font-weight: bold;
-        }
-
-        .class-4 {
-            color: #f39c12;
-            font-weight: bold;
-        }
-
-        .class-5 {
-            color: #9b59b6;
-            font-weight: bold;
-        }
-
-        .chart-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-    </style>
+    <title>중등 기술교과목 성적 분석 대시보드</title>
+    <meta name="description" content="중등 기술교과목 3개 분반 90명 학생의 성적 데이터 분석 결과입니다.">
+    <meta property="og:title" content="중등 기술교과목 성적 분석 대시보드">
+    <meta property="og:description" content="기말고사 및 수행평가 분석 결과를 시각화하여 제공합니다.">
+    <meta property="og:type" content="website">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <div class="container">
-        <h1>🏫 중학교 1학년 기술교과 성적 분석</h1>
-
-        <!-- 전체 통계 카드 -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h2>총 학생 수</h2>
-                <div class="stat-value">150</div>
-                <div class="stat-label">명</div>
-            </div>
-            <div class="stat-card">
-                <h2>전체 평균</h2>
-                <div class="stat-value">80.50</div>
-                <div class="stat-label">점</div>
-            </div>
-            <div class="stat-card">
-                <h2>최고 점수</h2>
-                <div class="stat-value">96.99</div>
-                <div class="stat-label">점 (5반 학생5-27)</div>
-            </div>
-            <div class="stat-card">
-                <h2>최저 점수</h2>
-                <div class="stat-value">63.30</div>
-                <div class="stat-label">점 (1반 학생1-12)</div>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">📊</span>
+                    <h1>성적 분석 대시보드</h1>
+                </div>
+                <nav class="nav">
+                    <a href="#overview" class="nav-link">개요</a>
+                    <a href="#analysis" class="nav-link">분석 결과</a>
+                    <a href="#heatmap" class="nav-link">히트맵</a>
+                </nav>
             </div>
         </div>
+    </header>
 
-        <!-- 반별 평균 총점 차트 -->
-        <div class="chart-container">
-            <h3 class="chart-title">📊 반별 평균 총점</h3>
-            <canvas id="totalScoreChart"></canvas>
-        </div>
-
-        <!-- 차트 그리드 -->
-        <div class="chart-grid">
-            <!-- 평가 항목별 비교 차트 -->
-            <div class="chart-container">
-                <h3 class="chart-title">🎯 평가 항목별 비교 (레이더)</h3>
-                <canvas id="radarChart"></canvas>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="container">
+            <div class="hero-content">
+                <span class="hero-badge">2026학년도 1학기</span>
+                <h2 class="hero-title">중등 기술교과목<br><span class="gradient-text">성적 분석 리포트</span></h2>
+                <p class="hero-description">
+                    3개 분반 90명 학생의 기말고사 및 수행평가 결과를 분석하여<br>
+                    학습 성취도와 분반별 비교 분석을 제공합니다.
+                </p>
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-value">90</div>
+                        <div class="stat-label">총 학생 수</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">분반 수</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📝</div>
+                        <div class="stat-value">4</div>
+                        <div class="stat-label">평가 항목</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-value">160</div>
+                        <div class="stat-label">만점</div>
+                    </div>
+                </div>
             </div>
+        </div>
+    </section>
 
-            <!-- 반별 평가 항목 비교 -->
-            <div class="chart-container">
-                <h3 class="chart-title">📈 반별 평가 항목별 평균</h3>
-                <canvas id="comparisonChart"></canvas>
+    <!-- Overview Section -->
+    <section id="overview" class="section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">OVERVIEW</span>
+                <h2 class="section-title">평가 개요</h2>
+                <p class="section-description">기말고사와 3개의 수행평가로 구성된 종합 평가 시스템</p>
+            </div>
+            
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <div class="card-icon final">
+                        <span>📖</span>
+                    </div>
+                    <h3>기말고사</h3>
+                    <div class="card-score">100점</div>
+                    <p>지필 평가를 통한 이론 지식 평가</p>
+                    <div class="card-detail">
+                        <span>평균 70점 기준</span>
+                    </div>
+                </div>
+                
+                <div class="overview-card">
+                    <div class="card-icon perf1">
+                        <span>🔧</span>
+                    </div>
+                    <h3>수행평가 1</h3>
+                    <div class="card-score">20점</div>
+                    <p>실습 프로젝트 과제</p>
+                    <div class="card-detail">
+                        <span>실기 능력 평가</span>
+                    </div>
+                </div>
+                
+                <div class="overview-card">
+                    <div class="card-icon perf2">
+                        <span>💡</span>
+                    </div>
+                    <h3>수행평가 2</h3>
+                    <div class="card-score">20점</div>
+                    <p>창의적 문제 해결</p>
+                    <div class="card-detail">
+                        <span>창의성 평가</span>
+                    </div>
+                </div>
+                
+                <div class="overview-card">
+                    <div class="card-icon perf3">
+                        <span>🤝</span>
+                    </div>
+                    <h3>수행평가 3</h3>
+                    <div class="card-score">20점</div>
+                    <p>협동 학습 활동</p>
+                    <div class="card-detail">
+                        <span>협업 능력 평가</span>
+                    </div>
+                </div>
             </div>
         </div>
+    </section>
 
-        <!-- 성적 분포 차트 -->
-        <div class="chart-container">
-            <h3 class="chart-title">📉 반별 성적 분포 (박스 플롯 스타일)</h3>
-            <canvas id="distributionChart"></canvas>
+    <!-- Analysis Section -->
+    <section id="analysis" class="section section-dark">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">ANALYSIS</span>
+                <h2 class="section-title">분석 결과</h2>
+                <p class="section-description">분반별 성적 분포와 평가 항목별 분석</p>
+            </div>
+            
+            <div class="analysis-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>성적 종합 분석</h3>
+                        <span class="chart-badge">Figure 1</span>
+                    </div>
+                    <div class="chart-container">
+                        <img src="성적분석_1.png" alt="분반별 기말고사 평균, 수행평가 평균, 총점 분포, 박스플롯" class="chart-image">
+                    </div>
+                    <div class="chart-description">
+                        <ul>
+                            <li>분반별 기말고사 평균 비교</li>
+                            <li>수행평가 1, 2, 3 분반별 비교</li>
+                            <li>총점 분포 히스토그램</li>
+                            <li>분반별 총점 박스플롯</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>세부 분석</h3>
+                        <span class="chart-badge">Figure 2</span>
+                    </div>
+                    <div class="chart-container">
+                        <img src="성적분석_2.png" alt="평가항목별 전체 평균, 기말 vs 수행총점 산점도, 등급 분포, 성취도" class="chart-image">
+                    </div>
+                    <div class="chart-description">
+                        <ul>
+                            <li>평가항목별 전체 평균</li>
+                            <li>기말고사 vs 수행평가 총점 상관관계</li>
+                            <li>전체 등급 분포 (A/B/C/D/F)</li>
+                            <li>분반별 항목별 성취도 비교</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <!-- 반별 상세 통계 테이블 -->
-        <div class="table-container">
-            <h3 class="chart-title">📋 반별 상세 통계</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>반</th>
-                        <th>학생 수</th>
-                        <th>총점 평균</th>
-                        <th>총점 최고</th>
-                        <th>총점 최저</th>
-                        <th>기말 평균</th>
-                        <th>수행1 평균</th>
-                        <th>수행2 평균</th>
-                        <th>수행3 평균</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="class-1">1반</td>
-                        <td>30</td>
-                        <td>80.52</td>
-                        <td>95.99</td>
-                        <td>63.30</td>
-                        <td>81.37</td>
-                        <td>17.03</td>
-                        <td>16.97</td>
-                        <td>17.17</td>
-                    </tr>
-                    <tr>
-                        <td class="class-2">2반</td>
-                        <td>30</td>
-                        <td>80.45</td>
-                        <td>94.99</td>
-                        <td>63.96</td>
-                        <td>80.97</td>
-                        <td>17.00</td>
-                        <td>17.13</td>
-                        <td>17.00</td>
-                    </tr>
-                    <tr>
-                        <td class="class-3">3반</td>
-                        <td>30</td>
-                        <td>80.53</td>
-                        <td>95.99</td>
-                        <td>65.30</td>
-                        <td>81.17</td>
-                        <td>17.07</td>
-                        <td>17.10</td>
-                        <td>17.07</td>
-                    </tr>
-                    <tr>
-                        <td class="class-4">4반</td>
-                        <td>30</td>
-                        <td>80.48</td>
-                        <td>94.99</td>
-                        <td>64.30</td>
-                        <td>81.00</td>
-                        <td>17.03</td>
-                        <td>17.07</td>
-                        <td>17.03</td>
-                    </tr>
-                    <tr>
-                        <td class="class-5">5반</td>
-                        <td>30</td>
-                        <td>80.50</td>
-                        <td>96.99</td>
-                        <td>64.28</td>
-                        <td>81.13</td>
-                        <td>17.00</td>
-                        <td>17.07</td>
-                        <td>17.07</td>
-                    </tr>
-                </tbody>
-            </table>
+    <!-- Heatmap Section -->
+    <section id="heatmap" class="section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">HEATMAP</span>
+                <h2 class="section-title">전체 학생 성적 히트맵</h2>
+                <p class="section-description">90명 학생의 평가 항목별 성취도를 한눈에 확인</p>
+            </div>
+            
+            <div class="heatmap-container">
+                <div class="heatmap-card">
+                    <div class="heatmap-legend">
+                        <div class="legend-item">
+                            <span class="legend-color low"></span>
+                            <span>낮음 (0%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color mid"></span>
+                            <span>중간 (50%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color high"></span>
+                            <span>높음 (100%)</span>
+                        </div>
+                    </div>
+                    <img src="성적분석_3_히트맵.png" alt="전체 학생 성적 히트맵 - 정규화된 성취도" class="heatmap-image">
+                </div>
+            </div>
+            
+            <div class="heatmap-info">
+                <div class="info-card">
+                    <div class="info-icon">🔴</div>
+                    <h4>1반</h4>
+                    <p>학생 번호 1-30</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">🟡</div>
+                    <h4>2반</h4>
+                    <p>학생 번호 31-60</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">🟢</div>
+                    <h4>3반</h4>
+                    <p>학생 번호 61-90</p>
+                </div>
+            </div>
         </div>
-    </div>
+    </section>
 
-    <script>
-        // 반별 평균 총점 차트
-        const totalScoreCtx = document.getElementById('totalScoreChart').getContext('2d');
-        new Chart(totalScoreCtx, {
-            type: 'bar',
-            data: {
-                labels: ['1반', '2반', '3반', '4반', '5반'],
-                datasets: [{
-                    label: '평균 총점',
-                    data: [80.52, 80.45, 80.53, 80.48, 80.50],
-                    backgroundColor: [
-                        'rgba(231, 76, 60, 0.7)',
-                        'rgba(52, 152, 219, 0.7)',
-                        'rgba(46, 204, 113, 0.7)',
-                        'rgba(243, 156, 18, 0.7)',
-                        'rgba(155, 89, 182, 0.7)'
-                    ],
-                    borderColor: [
-                        'rgba(231, 76, 60, 1)',
-                        'rgba(52, 152, 219, 1)',
-                        'rgba(46, 204, 113, 1)',
-                        'rgba(243, 156, 18, 1)',
-                        'rgba(155, 89, 182, 1)'
-                    ],
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                return '평균: ' + context.parsed.y.toFixed(2) + '점';
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            font: {
-                                size: 14
-                            }
-                        }
-                    },
-                    x: {
-                        ticks: {
-                            font: {
-                                size: 14
-                            }
-                        }
-                    }
-                }
-            }
-        });
+    <!-- Summary Section -->
+    <section class="section section-gradient">
+        <div class="container">
+            <div class="summary-content">
+                <h2 class="summary-title">분석 요약</h2>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <div class="summary-header">
+                            <span class="summary-icon">📊</span>
+                            <h3>전체 통계</h3>
+                        </div>
+                        <ul class="summary-list">
+                            <li><span>분석 대상:</span> 3개 분반, 90명</li>
+                            <li><span>평가 항목:</span> 기말 + 수행평가 3개</li>
+                            <li><span>총점 구성:</span> 기말(100) + 수행(60) = 160점</li>
+                        </ul>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-header">
+                            <span class="summary-icon">🎯</span>
+                            <h3>등급 기준</h3>
+                        </div>
+                        <ul class="summary-list grade-list">
+                            <li><span class="grade-a">A등급</span> 140점 이상</li>
+                            <li><span class="grade-b">B등급</span> 120점 이상</li>
+                            <li><span class="grade-c">C등급</span> 100점 이상</li>
+                            <li><span class="grade-d">D등급</span> 80점 이상</li>
+                            <li><span class="grade-f">F등급</span> 80점 미만</li>
+                        </ul>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-header">
+                            <span class="summary-icon">💡</span>
+                            <h3>주요 인사이트</h3>
+                        </div>
+                        <ul class="summary-list">
+                            <li>분반별 성적 편차 분석</li>
+                            <li>기말-수행평가 상관관계 파악</li>
+                            <li>개인별 강점/약점 항목 확인</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        // 레이더 차트
-        const radarCtx = document.getElementById('radarChart').getContext('2d');
-        new Chart(radarCtx, {
-            type: 'radar',
-            data: {
-                labels: ['1반', '2반', '3반', '4반', '5반'],
-                datasets: [
-                    {
-                        label: '기말고사',
-                        data: [81.37, 80.97, 81.17, 81.00, 81.13],
-                        backgroundColor: 'rgba(231, 76, 60, 0.2)',
-                        borderColor: 'rgba(231, 76, 60, 1)',
-                        borderWidth: 2,
-                        pointBackgroundColor: 'rgba(231, 76, 60, 1)'
-                    },
-                    {
-                        label: '수행평가1',
-                        data: [17.03, 17.00, 17.07, 17.03, 17.00],
-                        backgroundColor: 'rgba(52, 152, 219, 0.2)',
-                        borderColor: 'rgba(52, 152, 219, 1)',
-                        borderWidth: 2,
-                        pointBackgroundColor: 'rgba(52, 152, 219, 1)'
-                    },
-                    {
-                        label: '수행평가2',
-                        data: [16.97, 17.13, 17.10, 17.07, 17.07],
-                        backgroundColor: 'rgba(46, 204, 113, 0.2)',
-                        borderColor: 'rgba(46, 204, 113, 1)',
-                        borderWidth: 2,
-                        pointBackgroundColor: 'rgba(46, 204, 113, 1)'
-                    },
-                    {
-                        label: '수행평가3',
-                        data: [17.17, 17.00, 17.07, 17.03, 17.07],
-                        backgroundColor: 'rgba(243, 156, 18, 0.2)',
-                        borderColor: 'rgba(243, 156, 18, 1)',
-                        borderWidth: 2,
-                        pointBackgroundColor: 'rgba(243, 156, 18, 1)'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            font: {
-                                size: 12
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    r: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            font: {
-                                size: 11
-                            }
-                        }
-                    }
-                }
-            }
-        });
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <p>📊 중등 기술교과목 성적 분석 대시보드</p>
+                    <p class="footer-date">분석일: 2026년 1월 15일</p>
+                </div>
+                <div class="footer-tech">
+                    <span>Powered by Python & Matplotlib</span>
+                </div>
+            </div>
+        </div>
+    </footer>
 
-        // 평가 항목별 비교 차트
-        const comparisonCtx = document.getElementById('comparisonChart').getContext('2d');
-        new Chart(comparisonCtx, {
-            type: 'line',
-            data: {
-                labels: ['1반', '2반', '3반', '4반', '5반'],
-                datasets: [
-                    {
-                        label: '기말고사',
-                        data: [81.37, 80.97, 81.17, 81.00, 81.13],
-                        borderColor: 'rgba(231, 76, 60, 1)',
-                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                        borderWidth: 3,
-                        tension: 0.4,
-                        fill: true
-                    },
-                    {
-                        label: '수행평가1',
-                        data: [17.03, 17.00, 17.07, 17.03, 17.00],
-                        borderColor: 'rgba(52, 152, 219, 1)',
-                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                        borderWidth: 3,
-                        tension: 0.4,
-                        fill: true
-                    },
-                    {
-                        label: '수행평가2',
-                        data: [16.97, 17.13, 17.10, 17.07, 17.07],
-                        borderColor: 'rgba(46, 204, 113, 1)',
-                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
-                        borderWidth: 3,
-                        tension: 0.4,
-                        fill: true
-                    },
-                    {
-                        label: '수행평가3',
-                        data: [17.17, 17.00, 17.07, 17.03, 17.07],
-                        borderColor: 'rgba(243, 156, 18, 1)',
-                        backgroundColor: 'rgba(243, 156, 18, 0.1)',
-                        borderWidth: 3,
-                        tension: 0.4,
-                        fill: true
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            font: {
-                                size: 12
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            font: {
-                                size: 12
-                            }
-                        }
-                    },
-                    x: {
-                        ticks: {
-                            font: {
-                                size: 12
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        // 성적 분포 차트
-        const distributionCtx = document.getElementById('distributionChart').getContext('2d');
-        new Chart(distributionCtx, {
-            type: 'bar',
-            data: {
-                labels: ['1반', '2반', '3반', '4반', '5반'],
-                datasets: [
-                    {
-                        label: '최고점',
-                        data: [95.99, 94.99, 95.99, 94.99, 96.99],
-                        backgroundColor: 'rgba(46, 204, 113, 0.7)',
-                        borderColor: 'rgba(46, 204, 113, 1)',
-                        borderWidth: 2
-                    },
-                    {
-                        label: '평균',
-                        data: [80.52, 80.45, 80.53, 80.48, 80.50],
-                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
-                        borderColor: 'rgba(52, 152, 219, 1)',
-                        borderWidth: 2
-                    },
-                    {
-                        label: '최저점',
-                        data: [63.30, 63.96, 65.30, 64.30, 64.28],
-                        backgroundColor: 'rgba(231, 76, 60, 0.7)',
-                        borderColor: 'rgba(231, 76, 60, 1)',
-                        borderWidth: 2
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            font: {
-                                size: 14
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            font: {
-                                size: 14
-                            }
-                        }
-                    },
-                    x: {
-                        ticks: {
-                            font: {
-                                size: 14
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
-
 </html>
